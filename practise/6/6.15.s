@@ -46,6 +46,22 @@ lc1:
     movl %eax, 4(%esp)
     call printf
 
+
+
+    #6.15 other answer
+    xor %ecx, %ecx
+    movl $5, %ebx  # count
+    movl $byte_tbl-1, %eax
+lc2:
+    addb (%ebx, %eax, 1), %cl
+    dec %ebx
+    cmpl $0, %ebx
+    ja lc2
+
+    movl $fmt_sum, (%esp)
+    movl %ecx, 4(%esp)
+    call printf
+
     addl $16, %esp
     
     movl %ebp, %esp

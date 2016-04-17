@@ -10,6 +10,8 @@ _start :
 
     call p_6_15
 
+    call p_7_5
+
     addl $16, %esp
     movl %ebp, %esp
     popl %ebp
