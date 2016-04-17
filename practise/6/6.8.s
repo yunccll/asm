@@ -17,8 +17,9 @@ fmt_failed:
     .asciz "failed\n"
 
 .section .text
-.global  _start
-_start :
+.type p_6_8 @function
+.global  p_6_8
+p_6_8 :
     pushl %ebp
     movl %esp, %ebp
 
@@ -83,11 +84,9 @@ above:
     call printf
 then:
 
-    addl $8, %esp
+    addl $16, %esp
     
     movl %ebp, %esp
     popl %ebp
-
-    movl $1, %eax
-    movl $0, %ebx
-    int $0x80 # exit-1(0)
+    
+    ret
