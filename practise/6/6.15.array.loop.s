@@ -32,7 +32,7 @@ show_neg:
 
 then:
 
-    #6.15 sum the byte_tbl
+    #6.15 sum the byte_tbl  with loop(CX)
     movl $0, %eax
     movl $5, %ecx
     movl $byte_tbl-1, %ebx
@@ -48,7 +48,7 @@ lc1:
 
 
 
-    #6.15 other answer
+    #6.15 sum the byte_tbl with normal cmp-jump 
     xor %ecx, %ecx
     movl $5, %ebx  # count
     movl $byte_tbl-1, %eax
