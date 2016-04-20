@@ -2,8 +2,20 @@
 
 
     .section    .rodata
-src_text:
+    src_text:
     .asciz "strings from base\n"
+
+    s_text:
+    .ascii "123"
+    d_text:
+    .ascii "1234"
+
+    str_above:
+    .asciz "above\n"
+    str_blew:
+    .asciz "blew\n"
+    str_equ:
+    .asciz "equal\n"
 
     .section    .bss
     .lcomm  result  64
@@ -55,13 +67,32 @@ repeat:
     stosb
     loop repeat
 
-    #
-
-
     movl $result, (%esp)
     call printf
-    
 
+    #cmp string
+    .equ text_len,  4
+    movl $s_text, %esi
+    movl $d_text, %edi
+    movl $text_len, %ecx
+    cld
+    repe cmpsb
+    ja above
+    jb  blew
+    #cmp $0, %ecx
+    #jz equal
+    movl $str_equ, (%esp)
+    call printf
+    jmp next
+blew:
+    movl $str_blew, (%esp)
+    call printf
+    jmp next
+
+above:
+    movl $str_above, (%esp)
+    call printf
+next:
     addl $32, %esp
     movl %ebp, %esp
     popl %ebp
