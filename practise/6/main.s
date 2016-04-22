@@ -10,6 +10,7 @@ _start:
     subl $16, %esp
 
     call p_6_8
+    call p_6_9
     call p_6_15
     call p_7_5
     call p_11_2
