@@ -16,8 +16,10 @@ _start:
     call p_11_2
     call p_mul_div
 
-    
-
+    # call the c-func 
+    movl $1, (%esp)
+    movl $2, 4(%esp)
+    call add_int
 
     add $16, %esp
 

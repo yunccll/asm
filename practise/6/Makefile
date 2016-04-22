@@ -22,7 +22,7 @@ LD=ld
 all:$(TARGET) c_call_asm_func
 
 $(TARGET):$(OBJS)
-	$(LD) -dynamic-linker /lib/ld-linux.so.2 -o $@ $(OBJS) $(LFLAGS) 
+	$(LD) -dynamic-linker /lib/ld-linux.so.2 -o $@ $(OBJS) sub.o $(LFLAGS) 
 
 # c call the asm funcion 
 CC_OBJS = m.o 11.2.string.o

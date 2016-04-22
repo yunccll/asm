@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+// from ./11.2.string.s asm-function
 int str_len(const char * string);
 
 int main(){
