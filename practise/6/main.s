@@ -13,8 +13,10 @@ _start:
     call p_6_15
     call p_7_5
     call p_11_2
-    
     call p_mul_div
+
+    
+
 
     add $16, %esp
 

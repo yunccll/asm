@@ -4,6 +4,10 @@
     .section    .rodata
     src_text:
     .asciz "strings from base\n"
+fmt_eax:
+    .asciz "hello eax is %d\n"
+test_str:
+    .asciz ""
 
     s_text:
     .ascii "123"
@@ -93,7 +97,43 @@ above:
     movl $str_above, (%esp)
     call printf
 next:
+
+    
+    movl $test_str, (%esp)
+    call str_len
+    movl $fmt_eax, (%esp)
+    movl %eax, 4(%esp)
+    call printf
+
+    movl $fmt_eax, (%esp)
+    call str_len
+    movl $fmt_eax, (%esp)
+    movl %eax, 4(%esp)
+    call printf
+
     addl $32, %esp
+    movl %ebp, %esp
+    popl %ebp
+    ret
+
+
+    .global str_len
+    .type str_len @function
+str_len:
+    push %ebp
+    movl %esp, %ebp
+
+    movl 8(%ebp), %edi
+    movb $0, %al
+    cld
+goon:
+    scasb 
+    jne goon
+    movl %edi, %eax
+    movl 8(%ebp), %ebx
+    subl %ebx, %eax
+    dec %eax
+
     movl %ebp, %esp
     popl %ebp
     ret
