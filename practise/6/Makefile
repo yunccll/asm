@@ -19,14 +19,27 @@ LFLAGS= $(addprefix -L, $(LIB_PATH)) $(addprefix -l, $(STATIC_LIBS))
 AS=as
 LD=ld
 
-all:$(TARGET)
+all:$(TARGET) c_call_asm_func
 
 $(TARGET):$(OBJS)
 	$(LD) -dynamic-linker /lib/ld-linux.so.2 -o $@ $(OBJS) $(LFLAGS) 
 
+# c call the asm funcion 
+CC_OBJS = m.o 11.2.string.o
+CC_TARGET= c_call_asm
+
+c_call_asm_func: $(CC_TARGET)
+
+$(CC_TARGET):$(CC_OBJS)
+	gcc -o $@ $(CC_OBJS)
+
+clean_cc:
+	rm -frv $(CC_TARGET) $(CC_OBJS)
 
 %.o:%.s
 	$(AS) $(ASFLAGS) -o $@ $<
+%.o:%.c
+	gcc -c $<
 
-clean:
+clean: clean_cc
 	@rm -f $(TARGET) $(OBJS)

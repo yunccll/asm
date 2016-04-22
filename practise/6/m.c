@@ -1,7 +1,10 @@
 #include <stdio.h>
+
+int str_len(const char * string);
+
 int main(){
-    int i = 0;
-    printf("fmt %d\n", i);
-    printf("fmt4%d\n", i);
-    printf("fmt5%d,%d\n", i, 23);
+    const char *  fmt = "12345555";
+    int a = str_len(fmt);
+    printf("str_len is return %d\n", a);
+    return 0;
 }
