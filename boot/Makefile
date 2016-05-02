@@ -4,7 +4,7 @@
 TARGET := bootsector
 
 
-all: $(TARGET) 
+all:  $(TARGET) build
 
 
 $(TARGET):  bootsector.s
@@ -12,7 +12,7 @@ $(TARGET):  bootsector.s
 	ld -s -e bootsect_start -Ttext=0x0 --oformat=binary  -o bootsector bootsector.o
 
 
-build:
+build: $(TARGET)
 	make -C ./build
 
 clean_build:
