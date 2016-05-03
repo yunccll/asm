@@ -38,6 +38,8 @@ start2:
     movw 0x0308, %dx  # dh -> row , dl -> columns
     int $0x10
 
+
+
     sti
     cld
     movw  $boot_msg, %si
@@ -56,19 +58,46 @@ msg_loop:
     #mov $1, %cx
     jmp msg_loop
 
+
 reboot:
     # get the video mode  again
     movb $0x0f, %ah
     int $0x10
+    
+    #write the display memory directly
+    movw $video_mem_seg_start, %ax
+    movw %ax, %es
 
+    movw $0,  %di
+    movw $boot_msg_1, %bx
+show:
+    movb (%bx), %al    # mov the text into al
+    andb %al,%al
+    jz next
+    stosb
+
+    movb $0x4, %al # set the text attribute to red color, 0x07-white
+    stosb
+
+    inc %bx
+    jmp show
+
+next:
     xorw %ax, %ax
     int $0x16
     int $0x19
 
     ljmp $0xf000,$0xfff0
 
+    video_mem_seg_start = 0xb800
+    video_text_row      = 25
+    video_text_columns  = 80
+
 boot_msg:
     .ascii "hello world from my os\r\n"
+    .byte 0
+boot_msg_1:
+    .ascii "1234234234234234wefasdfasdf"
     .byte 0
 
 nr_cols:
