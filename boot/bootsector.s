@@ -40,7 +40,7 @@ start2:
 
 
 
-    sti
+    #sti
     cld
     movw  $boot_msg, %si
 
