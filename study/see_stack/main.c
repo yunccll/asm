@@ -1,6 +1,3 @@
-//#include <stdio.h>
-
-
 int area(int a){
     return a*a;
 }

@@ -14,8 +14,8 @@ CC=gcc
 
 DEBUG_FLAGS= -g -Wwrite-strings -Werror
 
-CFLAGS= $(addprefix -I, $(INC_PATH)) $(DEBUG_FLAGS)
-LFLAGS= $(DEBUG_FLAGS) $(addprefix -L, $(LIB_PATH)) -Wl,-Bstatic $(addprefix -l, $(STATIC_LIBS)) -Wl,-Bdynamic $(addprefix -l, $(DYNAMIC_LIBS))
+CFLAGS= -m32 $(addprefix -I, $(INC_PATH)) $(DEBUG_FLAGS)
+LFLAGS= -m elf_i386 -e main
 OBJS=$(addsuffix .o, $(SRC_NAME))
 
 ASM_SRC=$(addsuffix .s, $(SRC_NAME))
@@ -25,7 +25,7 @@ all:$(TARGET) asm
 asm:$(ASM_SRC)
 
 $(TARGET):$(OBJS)
-	$(CC) -o $@ $(OBJS) $(LFLAGS) 
+	$(LD) -o $@ $(OBJS) $(LFLAGS) 
 
 %.o:%.c
 	$(CC) $(CFLAGS) -c $<
