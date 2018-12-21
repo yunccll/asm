@@ -11,6 +11,7 @@ start2:
     movw %ax, %ss
     xorw %sp, %sp
 
+
     # get the video mode 
     movb $0x0f, %ah
     int $0x10

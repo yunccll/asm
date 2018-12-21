@@ -14,7 +14,7 @@ _start :
     #movw output, %bx  # output --> the memory location 's value
     #movw %bx, 1(%edi)
 
-    pushl $output
+    push $output
     call printf
     addl $4, %esp
 
