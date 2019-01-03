@@ -9,9 +9,8 @@ start2:
     movw %ax, %ds
     movw %ax, %es
     movw %ax, %ss
-    xorw %sp, %sp
-
-
+    subw %sp, %sp
+    
     # get the video mode 
     movb $0x0f, %ah
     int $0x10
