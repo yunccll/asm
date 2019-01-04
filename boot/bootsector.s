@@ -10,41 +10,18 @@ start2:
     movw %ax, %es
     movw %ax, %ss
     xorw %sp, %sp
+	movw $0xff00, %sp
 
 
-    # get the video mode 
-    movb $0x0f, %ah
-    int $0x10
-    movb %ah, nr_cols
-    movb %al, video_mode
-    movb %bh, cur_disp_page
-
-    # read the cursor position & size
-    movb $0x03, %ah
-    movb $0x00, %bh
-    int $0x10
-    # ch = 0x06   0b0000 0110 start scan line
-    # cl = 0x07   0b0000 0111 ending scan line
-    # dh = 0x12   row  (0-based)
-    # dl = 0x00   column
-
-    # set the cursor type
-    movb $0x01, %ah
-    movw $0x0607, %cx
-    int $0x10
-
-    #set the cursor position to 0,0
-    movb $0x02, %ah
-    movb $0x00, %bh
-    movw 0x0308, %dx  # dh -> row , dl -> columns
-    int $0x10
-
-
+	call get_video_mode
+	call set_cursor_type
+	call set_cursor_pos
 
     #sti
     cld
-    movw  $boot_msg, %si
 
+	#print message
+    movw  $boot_msg, %si
 msg_loop:
     lodsb
     andb %al, %al
@@ -59,12 +36,15 @@ msg_loop:
     #mov $1, %cx
     jmp msg_loop
 
-
 reboot:
+
+
     # get the video mode  again
     movb $0x0f, %ah
     int $0x10
     
+
+
     #write the display memory directly
     movw $video_mem_seg_start, %ax
     movw %ax, %es
@@ -93,6 +73,42 @@ next:
     video_mem_seg_start = 0xb800
     video_text_row      = 25
     video_text_columns  = 80
+
+
+
+
+
+get_video_mode:    # get the video mode 
+    movb $0x0f, %ah
+    int $0x10
+    movb %ah, nr_cols
+    movb %al, video_mode
+    movb %bh, cur_disp_page
+	ret
+
+read_cursor_pos:
+    movb $0x03, %ah
+    movb $0x00, %bh
+    int $0x10
+    # ch = 0x06   0b0000 0110 start scan line
+    # cl = 0x07   0b0000 0111 ending scan line
+    # dh = 0x12   row  (0-based)
+    # dl = 0x00   column
+	ret
+
+set_cursor_type:
+    movb $0x01, %ah
+    movw $0x0007, %cx
+    int $0x10
+	ret
+
+set_cursor_pos:
+    #set the cursor position to 0,0
+    movb $0x02, %ah
+    movb $0x00, %bh
+    movw 0x0308, %dx  # dh -> row , dl -> columns
+    int $0x10
+	ret
 
 boot_msg:
     .ascii "hello world from my os\r\n"
