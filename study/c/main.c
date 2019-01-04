@@ -18,9 +18,19 @@ char buf[4];        //.comm -after link ->.bss
 
 int global_val_2 = 0;
 
+
+
+int increase(int * c){
+    return ++(*c);
+}
+
 int main(int argc, char * argv[]){
 
     //global_val_2 = 100;
     printf("abcdeffff%d\n", 4);
+
+
+    int i = 100;
+    increase(&i);
     return 0;
 }

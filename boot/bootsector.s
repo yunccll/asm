@@ -9,14 +9,13 @@ start2:
     movw %ax, %ds
     movw %ax, %es
     movw %ax, %ss
-    xorw %sp, %sp
 	movw $0xff00, %sp
 
 
 	call get_video_mode
 	call set_cursor_type
 	call set_cursor_pos
-
+    
     #sti
     cld
 
