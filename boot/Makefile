@@ -1,6 +1,6 @@
 
 ENTRY	:=bootsect_start
-OBJS 	:= bootsector.o a.o
+OBJS 	:= bootsector.o
 
 TARGET := bootsector
 
