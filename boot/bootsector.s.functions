@@ -1,0 +1,141 @@
+BOOTSECT    = 0x07c0
+    .code16
+    .global bootsect_start
+bootsect_start:
+    ljmp $BOOTSECT,$start2
+start2:
+    # clear the cs ds es ss, sp
+    movw %cs, %ax
+    movw %ax, %ds
+    movw %ax, %es
+    movw %ax, %ss
+	movw $0xff00, %sp
+
+    movw  $boot_msg, %si
+    call print_cstr
+
+
+    xorw %ax, %ax
+    int $0x16   # get a key
+    int $0x19   # reboot 
+
+    ljmp $0xf000,$0xfff0
+
+print_cstr:  #(print_cstr(es:si=>string)
+    pushw %ax
+    pushw %bx
+    cld
+next_char:
+    lodsb
+    andb %al, %al
+    jz end
+
+    movb $0x0e, %ah
+    movw $0x01,%bx
+    int $0x10
+    jmp next_char
+end:
+    popw %bx
+    popw %ax
+    ret
+
+
+
+get_video_mode:    # get the video mode 
+    push %ax
+    push %bx
+    movb $0x0f, %ah
+    int $0x10
+    movb %ah, nr_cols
+    movb %al, video_mode
+    movb %bh, cur_disp_page
+    pop %bx
+    pop %ax
+	ret
+
+read_cursor_pos:
+    push %ax
+    push %bx
+    push %cx
+    push %dx
+    movb $0x03, %ah
+    movb $0x00, %bh
+    int $0x10
+    # ch = 0x06   0b0000 0110 start scan line
+    # cl = 0x07   0b0000 0111 ending scan line
+    # dh = 0x12   row  (0-based)
+    # dl = 0x00   column
+    pop %dx
+    pop %cx
+    pop %bx 
+    pop %ax
+	ret
+
+set_cursor_type:
+    push %ax
+    push %cx
+    movb $0x01, %ah
+    movw $0x0007, %cx
+    int $0x10
+    pop %cx
+    pop %ax
+	ret
+
+#set the cursor position to 0,0
+set_cursor_pos:
+    push %ax 
+    push %bx
+    push %dx
+    movb $0x02, %ah
+    movb $0x00, %bh
+    movw 0x0308, %dx  # dh -> row , dl -> columns
+    int $0x10
+    pop %dx 
+    pop %bx 
+    pop %ax
+	ret
+
+boot_msg:
+    .asciz "hello world from my os\r\n"
+boot_msg_1:
+    .asciz "1234234234234234wefasdfasdf\r\n"
+
+    
+#   video_mem_seg_start = 0xb800
+#   video_text_row      = 25
+#   video_text_columns  = 80
+#
+#   nr_cols:
+#       .byte 0 # AH 0x50
+#   video_mode:
+#       .byte 0 #al  0x03
+#   cur_disp_page:
+#       .byte 0 #BH   00
+#
+#   call get_video_mode
+#	call set_cursor_type
+#	call set_cursor_pos
+#   # get the video mode  again
+#   movb $0x0f, %ah
+#   int $0x10
+#
+#
+#   #write the display memory directly
+#   movw $video_mem_seg_start, %ax
+#   movw %ax, %es
+#   movw $0,  %di   # es:di = video_mem_seg_start
+
+#   movw $boot_msg_1, %bx
+#show:
+#    movb (%bx), %al    # mov the text into al
+#    andb %al,%al
+#    jz next
+#    stosb  # al -> es:di && ++di
+
+#    movb $0x4, %al # set the text attribute to red color, 0x07-white
+#    stosb  # al -> es:di && ++di
+#
+#    inc %bx
+#    jmp show
+#
+#next:

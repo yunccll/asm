@@ -1,125 +1,93 @@
-BOOTSECT    = 0x07c0
+seg_bootsector  = 0x07c0
+bootsector_len  = 1
+
+seg_setup       = 0x9000    # setup 0x9000:0000
+setup_len       = 4         # 4 sectors
+
+seg_system      = 0x1000    # system 0x1000:0000  len = ???
+system_len      = 0x3000    # 0x3000 Byte
+
     .code16
     .global bootsect_start
 bootsect_start:
-    ljmp $BOOTSECT,$start2
-start2:
-    # clear the cs ds es ss, sp
+    ljmp $seg_bootsector,$start
+
+start:
+    # clear the cs ds es ss
     movw %cs, %ax
     movw %ax, %ds
     movw %ax, %es
     movw %ax, %ss
 	movw $0xff00, %sp
 
+    #movw  $msg_run_bootsector, %si
+    #call print_cstr
 
-	call get_video_mode
-	call set_cursor_type
-	call set_cursor_pos
-    
-    #sti
+
+    movw  $msg_load_setup, %si
+    call print_cstr
+
+    movw $seg_setup, %ax
+    movw %ax, %es
+    xorw %bx, %bx
+    call load_setup_in_floppy
+
+    movw  $msg_load_system, %si
+    call print_cstr
+
+    #TODO: load system in floppy
+    #movw $seg_system, %ax
+    #movw %ax, %es
+    #xorw %bx, %bx
+    #call load_system_in_floppy
+
+    ljmp $seg_setup,$0x00
+
+
+# es:bx must be set
+load_setup_in_floppy:
+    movb $0x02, %ah     # function idx
+    movb $setup_len, %al    # sector numbers
+    movb $0x00, %dl     # driver 0
+    movb $0x00, %dh     # head 0
+    movb $0x00, %ch      # track 0
+    movb $0x02, %cl      # sector start 2
+    int $0x13
+    jb error
+    ret
+error:
+    movw $0x0000, %ax
+    movw $0x0000, %dx
+    int $0x13
+    jmp load_setup_in_floppy
+    ret
+
+print_cstr:  #(print_cstr(es:si=>string)
+    pushw %ax
+    pushw %bx
     cld
-
-	#print message
-    movw  $boot_msg, %si
-msg_loop:
+next_char:
     lodsb
     andb %al, %al
-    jz reboot
-    movb $0xe, %ah
-    movw $1,%bx
+    jz end
+
+    movb $0x0e, %ah
+    movw $0x01,%bx
     int $0x10
-    # colorful display , but no cursor advance
-    #movb $0x09, %ah
-    #movw $0x0001, %bx
-    #int $0x10
-    #mov $1, %cx
-    jmp msg_loop
-
-reboot:
+    jmp next_char
+end:
+    popw %bx
+    popw %ax
+    ret
 
 
-    # get the video mode  again
-    movb $0x0f, %ah
-    int $0x10
-    
+#msg_run_bootsector:
+#    .asciz "loading boot sector\r\n"
+msg_load_setup:
+    .asciz "loading setup\r\n"
+msg_load_system:
+    .asciz "loading system\r\n"
 
-
-    #write the display memory directly
-    movw $video_mem_seg_start, %ax
-    movw %ax, %es
-
-    movw $0,  %di
-    movw $boot_msg_1, %bx
-show:
-    movb (%bx), %al    # mov the text into al
-    andb %al,%al
-    jz next
-    stosb
-
-    movb $0x4, %al # set the text attribute to red color, 0x07-white
-    stosb
-
-    inc %bx
-    jmp show
-
-next:
-    xorw %ax, %ax
-    int $0x16
-    int $0x19
-
-    ljmp $0xf000,$0xfff0
-
-    video_mem_seg_start = 0xb800
-    video_text_row      = 25
-    video_text_columns  = 80
-
-
-
-
-
-get_video_mode:    # get the video mode 
-    movb $0x0f, %ah
-    int $0x10
-    movb %ah, nr_cols
-    movb %al, video_mode
-    movb %bh, cur_disp_page
-	ret
-
-read_cursor_pos:
-    movb $0x03, %ah
-    movb $0x00, %bh
-    int $0x10
-    # ch = 0x06   0b0000 0110 start scan line
-    # cl = 0x07   0b0000 0111 ending scan line
-    # dh = 0x12   row  (0-based)
-    # dl = 0x00   column
-	ret
-
-set_cursor_type:
-    movb $0x01, %ah
-    movw $0x0007, %cx
-    int $0x10
-	ret
-
-set_cursor_pos:
-    #set the cursor position to 0,0
-    movb $0x02, %ah
-    movb $0x00, %bh
-    movw 0x0308, %dx  # dh -> row , dl -> columns
-    int $0x10
-	ret
-
-boot_msg:
-    .ascii "hello world from my os\r\n"
-    .byte 0
-boot_msg_1:
-    .ascii "1234234234234234wefasdfasdf"
-    .byte 0
-
-nr_cols:
-    .byte 0 # AH 0x50
-video_mode:
-    .byte 0 #al  0x03
-cur_disp_page:
-    .byte 0 #BH   00
-    
+.org 510
+    .byte 0x55
+    .byte 0xaa

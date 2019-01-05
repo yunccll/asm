@@ -1,11 +1,11 @@
 
 TARGET := a.img
-BOOT_SECTOR :=../bootsector
+BOOT_SECTOR :=../bootsector.bin  ../setup.bin
 
 all: $(TARGET)
 	
 $(TARGET): $(BOOT_SECTOR)
-	python build.py $< $@
+	python build.py $^ $@
 
 
 clean:
