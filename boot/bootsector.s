@@ -1,4 +1,4 @@
-seg_bootsector  = 0x07c0
+seg_bootsector  = 0x07c0 
 bootsector_len  = 1
 
 seg_setup       = 0x9000    # setup 0x9000:0000
@@ -20,10 +20,6 @@ start:
     movw %ax, %ss
 	movw $0xff00, %sp
 
-    #movw  $msg_run_bootsector, %si
-    #call print_cstr
-
-
     movw  $msg_load_setup, %si
     call print_cstr
 
@@ -31,6 +27,8 @@ start:
     movw %ax, %es
     xorw %bx, %bx
     call load_setup_in_floppy
+
+    #TODO: 
 
     movw  $msg_load_system, %si
     call print_cstr
@@ -81,8 +79,6 @@ end:
     ret
 
 
-#msg_run_bootsector:
-#    .asciz "loading boot sector\r\n"
 msg_load_setup:
     .asciz "loading setup\r\n"
 msg_load_system:

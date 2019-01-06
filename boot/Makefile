@@ -14,9 +14,8 @@ all:  $(TARGET) build
 	#ld -s -m elf_i386 -e $(ENTRY) -o $@ $< a.o
 
 
-dump:
-	objdump -D -b binary -m i8086 bootsector.bin
-	objdump -D -b binary -m i8086 setup.bin
+dump: $(TARGET)
+	objdump -D -b binary -m i8086 $^
 
 dis:$(OBJS)
 	objdump -d $<
